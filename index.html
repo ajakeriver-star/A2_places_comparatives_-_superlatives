@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exploring Places: A2 English Interactive Practice</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    /* Custom subtle animations */
+    @keyframes popIn {
+      0% { transform: scale(0.96); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-pop {
+      animation: popIn 0.25s ease-out forwards;
+    }
+    /* Hide scrollbar on tab nav for mobile */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-800 selection:bg-teal-100 selection:text-teal-900">
+
+  <!-- Top Sticky Header & Progress Tracker -->
+  <header class="sticky top-0 z-40 bg-slate-900 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand / Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center shadow-inner text-white font-extrabold text-lg">
+          🌍
+        </div>
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400 block">A2 EFL Interactive Lab</span>
+          <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white leading-tight">Exploring Places &amp; Comparisons</h1>
+        </div>
+      </div>
+
+      <!-- Score, Badges & Audio Controls -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+        <!-- Score Pill -->
+        <div class="flex items-center gap-2 bg-slate-800 border border-slate-700 px-3.5 py-1.5 rounded-full text-sm font-semibold">
+          <span class="text-amber-400">⭐</span>
+          <span>Score: <strong id="global-score" class="text-teal-300">0</strong> / <span id="global-max">0</span></span>
+        </div>
+
+        <!-- Badge Pill -->
+        <div id="badge-pill" class="hidden sm:flex items-center gap-1.5 bg-indigo-950/90 border border-indigo-700/60 px-3 py-1.5 rounded-full text-xs font-semibold text-indigo-200">
+          <span id="badge-icon">🧭</span>
+          <span id="badge-title">Explorer Novice</span>
+        </div>
+
+        <!-- Reference Chart Button -->
+        <button onclick="toggleReferenceModal(true)" class="bg-teal-600 hover:bg-teal-500 active:scale-95 transition text-white text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl shadow flex items-center gap-1.5">
+          <span>📋</span>
+          <span class="hidden md:inline">Grammar Chart</span>
+        </button>
+
+        <!-- Sound Toggle -->
+        <button id="sound-toggle-btn" onclick="toggleSound()" title="Toggle Sound Effects" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 p-2 rounded-xl transition text-sm">
+          🔊
+        </button>
+
+        <!-- Reset Progress -->
+        <button onclick="openResetModal()" title="Reset All Progress" class="bg-slate-800 hover:bg-rose-900/60 border border-slate-700 hover:border-rose-700 text-slate-300 hover:text-rose-200 px-2.5 py-2 rounded-xl transition text-xs font-semibold">
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="bg-slate-800/95 border-t border-slate-700/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto no-scrollbar gap-2 py-2">
+        <button onclick="switchTab('vocab')" id="tab-btn-vocab" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition bg-teal-600 text-white shadow">
+          <span>🏙️</span> 1. Vocabulary Lab
+        </button>
+        <button onclick="switchTab('comparatives')" id="tab-btn-comparatives" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition text-slate-300 hover:bg-slate-700/70 hover:text-white">
+          <span>⚖️</span> 2. Comparatives Arena
+        </button>
+        <button onclick="switchTab('superlatives')" id="tab-btn-superlatives" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition text-slate-300 hover:bg-slate-700/70 hover:text-white">
+          <span>🏆</span> 3. Superlatives Challenge
+        </button>
+        <button onclick="switchTab('reading')" id="tab-btn-reading" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition text-slate-300 hover:bg-slate-700/70 hover:text-white">
+          <span>📖</span> 4. Reading Comprehension
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Toast Notification Banner (Replaces alert()) -->
+  <div id="toast-banner" class="fixed bottom-5 right-5 z-50 hidden max-w-sm bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl border border-slate-700 flex items-center gap-3 animate-pop">
+    <span id="toast-icon" class="text-xl">💡</span>
+    <p id="toast-msg" class="text-sm font-medium leading-snug"></p>
+  </div>
+
+  <!-- Main Content Container -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+
+    <!-- ========================================================= -->
+    <!-- TAB 1: VOCABULARY LAB (ADJECTIVES & PLACES)               -->
+    <!-- ========================================================= -->
+    <section id="section-vocab" class="tab-section space-y-8 animate-pop">
+      <!-- Intro Hero Card -->
+      <div class="bg-gradient-to-r from-teal-700 to-emerald-700 rounded-2xl p-6 sm:p-8 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="space-y-2 max-w-2xl">
+          <span class="inline-block bg-white/20 text-white text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">Module 1 • Target Vocabulary</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold">Describing Cities, Countries &amp; Activities</h2>
+          <p class="text-teal-50 text-sm sm:text-base leading-relaxed">
+            Explore 20 essential adjectives for describing places. Click the speaker icons to listen to English pronunciation, study how to talk about activities using <strong>"You can + verb"</strong> and <strong>"There is / There are"</strong>, and complete the interactive exercises below.
+          </p>
+        </div>
+        <div class="bg-white/15 backdrop-blur-sm border border-white/20 rounded-2xl p-4 text-sm space-y-1.5 w-full md:w-auto shrink-0">
+          <p class="font-bold text-amber-200">🗣️ Key Activity Patterns:</p>
+          <p>• <strong>You can</strong> visit ancient temples.</p>
+          <p>• <strong>You can</strong> try local street food.</p>
+          <p>• <strong>There is</strong> a famous historic center.</p>
+          <p>• <strong>There are</strong> clean, warm beaches.</p>
+        </div>
+      </div>
+
+      <!-- Flashcards Controls -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-slate-900">Interactive Vocabulary Flashcards (20 Core Adjectives)</h3>
+            <p class="text-sm text-slate-500">Filter by syllable rule or toggle Spanish meanings for extra A2 support.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="toggleSpanish()" id="btn-toggle-es" class="px-3.5 py-2 rounded-xl text-xs font-bold border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 transition flex items-center gap-1.5">
+              <span>🇲🇽</span> <span id="spanish-toggle-label">Show Spanish Meanings</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="flex flex-wrap gap-2">
+          <button onclick="filterVocab('all')" class="vocab-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white transition" data-cat="all">All (20)</button>
+          <button onclick="filterVocab('short')" class="vocab-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" data-cat="short">Short • 1 Syllable (7)</button>
+          <button onclick="filterVocab('y')" class="vocab-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" data-cat="y">2 Syllables -y (4)</button>
+          <button onclick="filterVocab('long')" class="vocab-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" data-cat="long">Long • 2+ Syllables (6)</button>
+          <button onclick="filterVocab('irregular')" class="vocab-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" data-cat="irregular">Irregulars (3)</button>
+        </div>
+
+        <!-- Flashcards Grid -->
+        <div id="flashcards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- Activity 1A & 1B Two-Column Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Activity 1A: Opposite Pairs Matching -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between space-y-5">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-teal-600 bg-teal-50 px-2.5 py-1 rounded-lg">Activity 1A</span>
+              <span id="match-progress" class="text-xs font-bold text-slate-500">0 / 6 Pairs Matched</span>
+            </div>
+            <h3 class="text-lg font-extrabold text-slate-900">Opposite Adjectives Match</h3>
+            <p class="text-sm text-slate-600">Tap an adjective on the left, then tap its opposite meaning on the right.</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3" id="opposites-board">
+            <div id="opposites-left" class="space-y-2.5"></div>
+            <div id="opposites-right" class="space-y-2.5"></div>
+          </div>
+
+          <div class="pt-2 flex items-center justify-between border-t border-slate-100">
+            <p id="match-feedback" class="text-xs font-semibold text-slate-500">Select any word to begin.</p>
+            <button onclick="initOppositesGame()" class="text-xs font-bold text-teal-700 hover:text-teal-900 underline">Shuffle Pairs</button>
+          </div>
+        </div>
+
+        <!-- Activity 1B: Context & Activities Fill-in-the-Blanks -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-5">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg">Activity 1B</span>
+              <span id="vocab-fill-score" class="text-xs font-bold text-slate-500">0 / 6 Correct</span>
+            </div>
+            <h3 class="text-lg font-extrabold text-slate-900">City Descriptions &amp; Activities</h3>
+            <p class="text-sm text-slate-600">Choose the best word to complete each description or activity sentence.</p>
+          </div>
+
+          <div id="vocab-fill-container" class="space-y-3.5">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TAB 2: COMPARATIVES ARENA                                 -->
+    <!-- ========================================================= -->
+    <section id="section-comparatives" class="tab-section hidden space-y-8 animate-pop">
+      <!-- Visual Grammar Rule Card -->
+      <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-3 py-1 rounded-full">Module 2 • Grammar &amp; Practice</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">Comparing Two Places (Comparatives)</h2>
+            <p class="text-sm sm:text-base text-slate-600 mt-1">Use comparative adjectives + <strong>than</strong> to contrast two cities, countries, or travel styles.</p>
+          </div>
+          <div class="bg-slate-900 text-white px-4 py-3 rounded-2xl text-sm shrink-0">
+            <p class="text-amber-400 font-bold text-xs uppercase">Golden Formula</p>
+            <p class="font-semibold mt-0.5">Place A + <em>is/are</em> + <span class="text-teal-300">[Comparative]</span> + <strong>than</strong> + Place B</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-teal-50/70 border border-teal-200 rounded-2xl p-4 space-y-1.5">
+            <span class="text-xs font-extrabold uppercase text-teal-700">1. Short (1 Syllable)</span>
+            <h4 class="font-bold text-slate-900 text-base">Adjective + -er</h4>
+            <p class="text-xs text-slate-600">cheap → <strong>cheaper</strong><br>clean → <strong>cleaner</strong><br>big → <strong>bigger</strong> (CVC double)</p>
+          </div>
+          <div class="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-4 space-y-1.5">
+            <span class="text-xs font-extrabold uppercase text-indigo-700">2. Ending in -y</span>
+            <h4 class="font-bold text-slate-900 text-base">Change -y to -ier</h4>
+            <p class="text-xs text-slate-600">busy → <strong>busier</strong><br>noisy → <strong>noisier</strong><br>friendly → <strong>friendlier</strong></p>
+          </div>
+          <div class="bg-orange-50/70 border border-orange-200 rounded-2xl p-4 space-y-1.5">
+            <span class="text-xs font-extrabold uppercase text-orange-700">3. Long (2+ Syllables)</span>
+            <h4 class="font-bold text-slate-900 text-base">more + Adjective</h4>
+            <p class="text-xs text-slate-600">crowded → <strong>more crowded</strong><br>expensive → <strong>more expensive</strong><br>peaceful → <strong>more peaceful</strong></p>
+          </div>
+          <div class="bg-rose-50/70 border border-rose-200 rounded-2xl p-4 space-y-1.5">
+            <span class="text-xs font-extrabold uppercase text-rose-700">4. Irregulars</span>
+            <h4 class="font-bold text-slate-900 text-base">Special Forms</h4>
+            <p class="text-xs text-slate-600">good → <strong>better</strong><br>bad → <strong>worse</strong><br>far → <strong>farther / further</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity 2A & 2B -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Activity 2A: Morphology Transformer (6 cols) -->
+        <div class="lg:col-span-6 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-5">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-teal-600 bg-teal-50 px-2.5 py-1 rounded-lg">Activity 2A</span>
+              <span id="comp-morph-score" class="text-xs font-bold text-slate-500">0 / 10 Correct</span>
+            </div>
+            <h3 class="text-lg font-extrabold text-slate-900">Morphology Transformer</h3>
+            <p class="text-sm text-slate-600">Type the correct <strong>comparative form</strong> (do not include "than"). Watch your spelling!</p>
+          </div>
+
+          <div id="comp-morph-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Activity 2B: City vs. City Comparison Builder & Logic (6 cols) -->
+        <div class="lg:col-span-6 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-5">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg">Activity 2B</span>
+              <span id="comp-city-score" class="text-xs font-bold text-slate-500">0 / 6 Correct</span>
+            </div>
+            <h3 class="text-lg font-extrabold text-slate-900">City vs. City Comparison Logic</h3>
+            <p class="text-sm text-slate-600">Compare real-world destinations based on travel facts. Select the accurate sentence.</p>
+          </div>
+
+          <div id="comp-city-list" class="space-y-4">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TAB 3: SUPERLATIVES CHALLENGE                             -->
+    <!-- ========================================================= -->
+    <section id="section-superlatives" class="tab-section hidden space-y-8 animate-pop">
+      <!-- Visual Grammar Rule Card -->
+      <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">Module 3 • Ranking &amp; Extremes</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">The Ultimate Destination (Superlatives)</h2>
+            <p class="text-sm sm:text-base text-slate-600 mt-1">Use superlative adjectives with <strong>"the"</strong> to compare three or more places and highlight #1 extremes.</p>
+          </div>
+          <div class="bg-slate-900 text-white px-4 py-3 rounded-2xl text-sm shrink-0">
+            <p class="text-amber-400 font-bold text-xs uppercase">Golden Rule</p>
+            <p class="font-semibold mt-0.5">Always use <strong>the</strong> + <span class="text-amber-300">[Superlative]</span> (e.g., <em>the biggest</em>)</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-teal-50/70 border border-teal-200 rounded-2xl p-4 space-y-1.5">
+            <span class="text-xs font-extrabold uppercase text-teal-700">1. Short (1 Syllable)</span>
+            <h4 class="font-bold text-slate-900 text-base">the + adj + -est</h4>
+            <p class="text-xs text-slate-600">big → <strong>the biggest</strong><br>cheap → <strong>the cheapest</strong><br>old → <strong>the oldest</strong></p>
+          </div>
+          <div class="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-4 space-y-1.5">
+            <span class="text-xs font-extrabold uppercase text-indigo-700">2. Ending in -y</span>
+            <h4 class="font-bold text-slate-900 text-base">the + adj (-iest)</h4>
+            <p class="text-xs text-slate-600">busy → <strong>the busiest</strong><br>pretty → <strong>the prettiest</strong><br>friendly → <strong>the friendliest</strong></p>
+          </div>
+          <div class="bg-orange-50/70 border border-orange-200 rounded-2xl p-4 space-y-1.5">
+            <span class="text-xs font-extrabold uppercase text-orange-700">3. Long (2+ Syllables)</span>
+            <h4 class="font-bold text-slate-900 text-base">the most + Adjective</h4>
+            <p class="text-xs text-slate-600">famous → <strong>the most famous</strong><br>exciting → <strong>the most exciting</strong><br>modern → <strong>the most modern</strong></p>
+          </div>
+          <div class="bg-rose-50/70 border border-rose-200 rounded-2xl p-4 space-y-1.5">
+            <span class="text-xs font-extrabold uppercase text-rose-700">4. Irregulars</span>
+            <h4 class="font-bold text-slate-900 text-base">Special Forms</h4>
+            <p class="text-xs text-slate-600">good → <strong>the best</strong><br>bad → <strong>the worst</strong><br>far → <strong>the farthest / furthest</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity 3A & 3B -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Activity 3A: World Records & Superlative Gap-Fill (7 cols) -->
+        <div class="lg:col-span-7 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-5">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">Activity 3A</span>
+              <span id="sup-gap-score" class="text-xs font-bold text-slate-500">0 / 8 Correct</span>
+            </div>
+            <h3 class="text-lg font-extrabold text-slate-900">World Records &amp; Superlative Gap-Fill</h3>
+            <p class="text-sm text-slate-600">Select the complete superlative form (remember <strong>"the"</strong>!) to complete each world travel fact.</p>
+          </div>
+
+          <div id="sup-gap-list" class="space-y-3.5">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Activity 3B: Travel Agency Advisor Mini-Task (5 cols) -->
+        <div class="lg:col-span-5 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-5">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-teal-600 bg-teal-50 px-2.5 py-1 rounded-lg">Activity 3B</span>
+              <span id="sup-advisor-score" class="text-xs font-bold text-slate-500">0 / 4 Matched</span>
+            </div>
+            <h3 class="text-lg font-extrabold text-slate-900">Travel Agency Advisor</h3>
+            <p class="text-sm text-slate-600">Match each traveler profile with the best destination based on superlative recommendations.</p>
+          </div>
+
+          <div id="sup-advisor-list" class="space-y-4">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TAB 4: READING COMPREHENSION                              -->
+    <!-- ========================================================= -->
+    <section id="section-reading" class="tab-section hidden space-y-6 animate-pop">
+      <!-- Passage Selector Bar -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">Module 4 • Integrated Reading</span>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">A2 Travel Reading Comprehension</h2>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="selectPassage(0)" id="passage-tab-0" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 text-white shadow transition">
+            Passage 1: Three Amazing Cities
+          </button>
+          <button onclick="selectPassage(1)" id="passage-tab-1" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+            Passage 2: Beach vs. Mountain
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Reading Workspace -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Left: Reading Passage Card (6 cols) -->
+        <div class="lg:col-span-6 bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+              <span id="reading-tag" class="text-xs font-bold uppercase tracking-wider text-teal-600">Travel Guide • ~190 Words</span>
+              <h3 id="reading-title" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">Three Amazing Cities: Tokyo, Guanajuato, and Reykjavik</h3>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="togglePassageAudio()" id="btn-read-aloud" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow flex items-center gap-1.5 transition">
+                <span>🔊</span> <span id="read-aloud-label">Listen to Passage</span>
+              </button>
+              <button onclick="toggleHighlightGrammar()" id="btn-highlight-grammar" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold px-3 py-2 rounded-xl transition">
+                ✨ Highlight Grammar
+              </button>
+            </div>
+          </div>
+
+          <!-- Legend when grammar highlighted -->
+          <div id="grammar-legend" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs flex flex-wrap gap-3">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-teal-200 inline-block"></span> Base Adjectives</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-orange-200 inline-block"></span> Comparatives</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-indigo-200 inline-block"></span> Superlatives</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-200 inline-block"></span> Activities (can / there is-are)</span>
+          </div>
+
+          <div id="reading-body" class="space-y-4 text-slate-700 text-base leading-relaxed">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Right: Comprehension Questions Card (6 cols) -->
+        <div class="lg:col-span-6 bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">Comprehension Check</h3>
+              <p class="text-xs sm:text-sm text-slate-500">Answer all 6 questions (True/False/Doesn't Say, Multiple Choice &amp; Vocabulary).</p>
+            </div>
+            <span id="reading-score-badge" class="bg-slate-100 text-slate-800 text-xs font-extrabold px-3 py-1.5 rounded-full">0 / 6 Correct</span>
+          </div>
+
+          <div id="reading-questions-container" class="space-y-5">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-5 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <p><strong>Exploring Places (A2 EFL Module)</strong> — Descriptive Adjectives, Comparatives, Superlatives &amp; Reading.</p>
+      <p>Offline-Ready Single-File Interactive Web App • Web Speech Audio Enabled</p>
+    </div>
+  </footer>
+
+  <!-- ========================================================= -->
+  <!-- MODAL 1: COMPLETE GRAMMAR & VOCABULARY REFERENCE CHART    -->
+  <!-- ========================================================= -->
+  <div id="reference-modal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden animate-pop">
+      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Quick Study Guide</span>
+          <h3 class="text-lg sm:text-xl font-extrabold">Complete A2 Adjectives, Comparatives &amp; Superlatives Table</h3>
+        </div>
+        <button onclick="toggleReferenceModal(false)" class="bg-slate-800 hover:bg-slate-700 text-white w-9 h-9 rounded-xl font-bold flex items-center justify-center">✕</button>
+      </div>
+      <div class="p-6 overflow-y-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-100 text-slate-800 border-b border-slate-200">
+              <th class="py-3 px-4 font-extrabold">Category</th>
+              <th class="py-3 px-4 font-extrabold">Base Adjective</th>
+              <th class="py-3 px-4 font-extrabold text-orange-700">Comparative (+ than)</th>
+              <th class="py-3 px-4 font-extrabold text-indigo-700">Superlative (the ...)</th>
+              <th class="py-3 px-4 font-extrabold">Audio</th>
+            </tr>
+          </thead>
+          <tbody id="reference-table-body" class="divide-y divide-slate-100">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL 2: CONFIRM RESET PROGRESS (NO window.confirm())     -->
+  <!-- ========================================================= -->
+  <div id="reset-modal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-pop">
+      <div class="flex items-center gap-3 text-rose-600">
+        <span class="text-2xl">⚠️</span>
+        <h3 class="text-lg font-extrabold text-slate-900">Reset All Progress?</h3>
+      </div>
+      <p class="text-sm text-slate-600 leading-relaxed">
+        This will clear your current score and reset all interactive exercises across Vocabulary, Comparatives, Superlatives, and Reading Comprehension.
+      </p>
+      <div class="flex justify-end gap-3 pt-2">
+        <button onclick="closeResetModal()" class="px-4 py-2 rounded-xl text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition">Cancel</button>
+        <button onclick="confirmResetProgress()" class="px-4 py-2 rounded-xl text-sm font-bold bg-rose-600 hover:bg-rose-500 text-white shadow transition">Yes, Reset Everything</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- APPLICATION JAVASCRIPT (100% OFFLINE & SELF-CONTAINED)    -->
+  <!-- ========================================================= -->
+  <script>
+    // -----------------------------------------------------------
+    // 1. TARGET VOCABULARY DATA (20 CORE ADJECTIVES)
+    // -----------------------------------------------------------
+    const VOCAB_BANK = [
+      // Short (1 syllable) - 7 items
+      { id: "big", category: "short", catLabel: "Short (1 syl)", base: "big", comp: "bigger", sup: "the biggest", es: "grande", example: "Tokyo is a very big city. You can ride fast trains everywhere." },
+      { id: "small", category: "short", catLabel: "Short (1 syl)", base: "small", comp: "smaller", sup: "the smallest", es: "pequeño", example: "It is a small town, and there is a lovely central plaza." },
+      { id: "cheap", category: "short", catLabel: "Short (1 syl)", base: "cheap", comp: "cheaper", sup: "the cheapest", es: "barato", example: "Street tacos are cheap! You can eat well for five dollars." },
+      { id: "clean", category: "short", catLabel: "Short (1 syl)", base: "clean", comp: "cleaner", sup: "the cleanest", es: "limpio", example: "Reykjavik is super clean, and there are beautiful parks." },
+      { id: "safe", category: "short", catLabel: "Short (1 syl)", base: "safe", comp: "safer", sup: "the safest", es: "seguro", example: "The historic center is safe, so you can walk at night." },
+      { id: "old", category: "short", catLabel: "Short (1 syl)", base: "old", comp: "older", sup: "the oldest", es: "antiguo / viejo", example: "There are many old buildings and castles in Europe." },
+      { id: "warm", category: "short", catLabel: "Short (1 syl)", base: "warm", comp: "warmer", sup: "the warmest", es: "cálido", example: "The weather is warm in spring. You can swim at the beach." },
+
+      // 2 syllables ending in -y - 4 items
+      { id: "busy", category: "y", catLabel: "Ends in -y", base: "busy", comp: "busier", sup: "the busiest", es: "concurrido / ocupado", example: "The main market is busy on weekends. You can buy fresh fruit." },
+      { id: "noisy", category: "y", catLabel: "Ends in -y", base: "noisy", comp: "noisier", sup: "the noisiest", es: "ruidoso", example: "Downtown is noisy at night because there are many clubs." },
+      { id: "friendly", category: "y", catLabel: "Ends in -y", base: "friendly", comp: "friendlier", sup: "the friendliest", es: "amigable", example: "Local people are friendly. You can ask them for directions." },
+      { id: "pretty", category: "y", catLabel: "Ends in -y", base: "pretty", comp: "prettier", sup: "the prettiest", es: "bonito / lindo", example: "Guanajuato has pretty colorful houses on the hills." },
+
+      // Long (2+ syllables) - 6 items
+      { id: "crowded", category: "long", catLabel: "Long (2+ syl)", base: "crowded", comp: "more crowded", sup: "the most crowded", es: "lleno de gente", example: "Subway trains are crowded at 8 AM. You can walk instead." },
+      { id: "expensive", category: "long", catLabel: "Long (2+ syl)", base: "expensive", comp: "more expensive", sup: "the most expensive", es: "caro", example: "Luxury hotels are expensive, so students stay in hostels." },
+      { id: "modern", category: "long", catLabel: "Long (2+ syl)", base: "modern", comp: "more modern", sup: "the most modern", es: "moderno", example: "There are modern skyscrapers and art museums downtown." },
+      { id: "peaceful", category: "long", catLabel: "Long (2+ syl)", base: "peaceful", comp: "more peaceful", sup: "the most peaceful", es: "tranquilo", example: "The mountain village is peaceful. You can relax by the lake." },
+      { id: "exciting", category: "long", catLabel: "Long (2+ syl)", base: "exciting", comp: "more exciting", sup: "the most exciting", es: "emocionante", example: "New York is an exciting city! There is always something to do." },
+      { id: "famous", category: "long", catLabel: "Long (2+ syl)", base: "famous", comp: "more famous", sup: "the most famous", es: "famoso", example: "The Eiffel Tower is famous. You can take great photos there." },
+
+      // Irregulars - 3 items
+      { id: "good", category: "irregular", catLabel: "Irregular", base: "good", comp: "better", sup: "the best", es: "bueno", example: "The local food is very good. You can try mole and tamales." },
+      { id: "bad", category: "irregular", catLabel: "Irregular", base: "bad", comp: "worse", sup: "the worst", es: "malo", example: "Traffic is bad during rush hour, so there are many delays." },
+      { id: "far", category: "irregular", catLabel: "Irregular", base: "far", comp: "farther", sup: "the farthest", es: "lejos", example: "The airport is far from the center. You can take a shuttle bus." }
+    ];
+
+    // -----------------------------------------------------------
+    // 2. EXERCISE DATA BANKS
+    // -----------------------------------------------------------
+    const OPPOSITE_PAIRS = [
+      { id: "p1", left: "crowded", right: "peaceful" },
+      { id: "p2", left: "cheap", right: "expensive" },
+      { id: "p3", left: "modern", right: "old" },
+      { id: "p4", left: "big", right: "small" },
+      { id: "p5", left: "good", right: "bad" },
+      { id: "p6", left: "noisy", right: "quiet" }
+    ];
+
+    const VOCAB_FILL_ITEMS = [
+      {
+        id: "vf1",
+        sentence: "In Mexico City, ________ delicious street food on almost every corner.",
+        options: ["you can try", "you can to try", "there is try"],
+        answer: "you can try",
+        explanation: "Use 'you can + base verb' (try) without 'to' to describe possible activities."
+      },
+      {
+        id: "vf2",
+        sentence: "The mountain town has no traffic and very few tourists, so it is extremely ________.",
+        options: ["peaceful", "crowded", "noisy"],
+        answer: "peaceful",
+        explanation: "'Peaceful' means quiet, calm, and relaxing."
+      },
+      {
+        id: "vf3",
+        sentence: "________ a famous 16th-century cathedral right in the center of the city.",
+        options: ["There is", "There are", "You can"],
+        answer: "There is",
+        explanation: "Use 'There is' with singular nouns ('a famous cathedral')."
+      },
+      {
+        id: "vf4",
+        sentence: "A five-star hotel in Paris costs $600 a night. It is too ________ for students!",
+        options: ["expensive", "cheap", "friendly"],
+        answer: "expensive",
+        explanation: "'Expensive' describes something that costs a lot of money."
+      },
+      {
+        id: "vf5",
+        sentence: "________ many modern art museums and clean parks in Tokyo.",
+        options: ["There are", "There is", "You can"],
+        answer: "There are",
+        explanation: "Use 'There are' with plural nouns ('many modern art museums')."
+      },
+      {
+        id: "vf6",
+        sentence: "You can walk alone in Reykjavik at midnight because it is a very ________ city.",
+        options: ["safe", "bad", "far"],
+        answer: "safe",
+        explanation: "'Safe' means free from danger."
+      }
+    ];
+
+    const COMP_MORPH_ITEMS = [
+      { id: "cm1", base: "big", answer: "bigger", hint: "CVC rule: double the 'g' + -er" },
+      { id: "cm2", base: "cheap", answer: "cheaper", hint: "Short 1-syllable adjective + -er" },
+      { id: "cm3", base: "busy", answer: "busier", hint: "Change -y to -i + -er" },
+      { id: "cm4", base: "crowded", answer: "more crowded", hint: "Long 2-syllable adjective: use 'more'" },
+      { id: "cm5", base: "good", answer: "better", hint: "Irregular comparative form of 'good'" },
+      { id: "cm6", base: "noisy", answer: "noisier", hint: "Change -y to -i + -er" },
+      { id: "cm7", base: "expensive", answer: "more expensive", hint: "Long 3-syllable adjective: use 'more'" },
+      { id: "cm8", base: "bad", answer: "worse", hint: "Irregular comparative form of 'bad'" },
+      { id: "cm9", base: "safe", answer: "safer", hint: "Ends in -e: just add -r" },
+      { id: "cm10", base: "friendly", answer: "friendlier", hint: "Ends in -y: change -y to -i + -er" }
+    ];
+
+    const COMP_CITY_ITEMS = [
+      {
+        id: "cc1",
+        prompt: "Tokyo (37 million people) vs. Guanajuato (195,000 people)",
+        options: [
+          "Tokyo is much bigger and more crowded than Guanajuato.",
+          "Tokyo is more big and crowdeder than Guanajuato.",
+          "Guanajuato is bigger than Tokyo."
+        ],
+        answer: "Tokyo is much bigger and more crowded than Guanajuato.",
+        explanation: "'Big' doubles the 'g' (bigger), and 'crowded' takes 'more' (more crowded)."
+      },
+      {
+        id: "cc2",
+        prompt: "Street tacos ($2) vs. Luxury restaurant dinner ($85)",
+        options: [
+          "Street tacos are cheaper than a luxury restaurant dinner.",
+          "Street tacos are more cheap than a luxury restaurant dinner.",
+          "A luxury dinner is cheapier than street tacos."
+        ],
+        answer: "Street tacos are cheaper than a luxury restaurant dinner.",
+        explanation: "'Cheap' is a short 1-syllable adjective, so we add '-er' (cheaper)."
+      },
+      {
+        id: "cc3",
+        prompt: "Cancún (30°C sunny beaches) vs. Reykjavik (8°C cool winds)",
+        options: [
+          "Cancún is warmer than Reykjavik.",
+          "Reykjavik is warmer than Cancún.",
+          "Cancún is more warm than Reykjavik."
+        ],
+        answer: "Cancún is warmer than Reykjavik.",
+        explanation: "30°C is warmer than 8°C; 'warm' takes '-er'."
+      },
+      {
+        id: "cc4",
+        prompt: "Downtown traffic at 6 PM vs. A quiet forest cabin",
+        options: [
+          "Downtown traffic is noisier and worse than a forest cabin.",
+          "Downtown traffic is more noisy and badder than a forest cabin.",
+          "A forest cabin is noisier than downtown traffic."
+        ],
+        answer: "Downtown traffic is noisier and worse than a forest cabin.",
+        explanation: "'Noisy' changes -y to -ier (noisier), and 'bad' is irregular (worse)."
+      },
+      {
+        id: "cc5",
+        prompt: "New York skyscrapers (built in 2022) vs. Rome Colosseum (built in 80 AD)",
+        options: [
+          "New York is more modern than Rome, and Rome is older than New York.",
+          "New York is moderner than Rome, and Rome is more old.",
+          "Rome is more modern than New York."
+        ],
+        answer: "New York is more modern than Rome, and Rome is older than New York.",
+        explanation: "'Modern' takes 'more modern', while 1-syllable 'old' takes 'older'."
+      },
+      {
+        id: "cc6",
+        prompt: "Helpful locals who smile and guide tourists vs. Rude staff",
+        options: [
+          "Helpful locals are friendlier than rude staff.",
+          "Helpful locals are more friendlyer than rude staff.",
+          "Rude staff are better than helpful locals."
+        ],
+        answer: "Helpful locals are friendlier than rude staff.",
+        explanation: "'Friendly' ends in -y, so it becomes 'friendlier'."
+      }
+    ];
+
+    const SUP_GAP_ITEMS = [
+      {
+        id: "sg1",
+        sentence: "Russia is ________ country in the world by land area.",
+        options: ["the biggest", "biggest", "the most big"],
+        answer: "the biggest",
+        explanation: "Always include 'the' before superlatives. 'Big' becomes 'the biggest'."
+      },
+      {
+        id: "sg2",
+        sentence: "In my opinion, Oaxaca has ________ traditional food in Mexico!",
+        options: ["the best", "the goodest", "best"],
+        answer: "the best",
+        explanation: "Irregular superlative of 'good' is 'the best'."
+      },
+      {
+        id: "sg3",
+        sentence: "Shinjuku Station in Tokyo is ________ train station on Earth with 3.5 million daily passengers.",
+        options: ["the busiest", "the most busy", "the busyest"],
+        answer: "the busiest",
+        explanation: "Two-syllable adjectives ending in -y change to '-iest' with 'the'."
+      },
+      {
+        id: "sg4",
+        sentence: "Zurich and Singapore are often ranked as ________ cities to live in because prices are very high.",
+        options: ["the most expensive", "the expensivest", "most expensive"],
+        answer: "the most expensive",
+        explanation: "Long adjectives (3 syllables) use 'the most + adjective'."
+      },
+      {
+        id: "sg5",
+        sentence: "According to the Global Peace Index, Iceland is ________ country in the world.",
+        options: ["the safest", "the most safe", "safest"],
+        answer: "the safest",
+        explanation: "'Safe' is a 1-syllable adjective ending in -e, so add '-st' with 'the'."
+      },
+      {
+        id: "sg6",
+        sentence: "Rush hour on Friday afternoon is ________ time to drive across the city.",
+        options: ["the worst", "the baddest", "worse"],
+        answer: "the worst",
+        explanation: "Irregular superlative of 'bad' is 'the worst'."
+      },
+      {
+        id: "sg7",
+        sentence: "Paris is one of ________ tourist destinations in Europe; millions visit the Louvre every year.",
+        options: ["the most famous", "the famousest", "more famous"],
+        answer: "the most famous",
+        explanation: "'Famous' has 2 syllables (not ending in -y), so use 'the most famous'."
+      },
+      {
+        id: "sg8",
+        sentence: "Out of all the villages on our trip, Hallstatt in Austria was ________.",
+        options: ["the prettiest", "the most pretty", "prettier"],
+        answer: "the prettiest",
+        explanation: "'Pretty' ends in -y, so it transforms into 'the prettiest'."
+      }
+    ];
+
+    const SUP_ADVISOR_ITEMS = [
+      {
+        id: "sa1",
+        profile: "🎒 Leo (Budget Backpacker): Wants cheap hostels, free walking tours, and affordable street food.",
+        options: [
+          "Destination A: 'The cheapest option! You can stay for $12 a night and eat great street food.'",
+          "Destination B: 'The most expensive luxury island with private yachts.'"
+        ],
+        answer: "Destination A: 'The cheapest option! You can stay for $12 a night and eat great street food.'",
+        explanation: "Leo has a low budget, so 'the cheapest' destination matches his needs."
+      },
+      {
+        id: "sa2",
+        profile: "🧘 Maya (Stressed Architect): Wants silence, nature, lakes, and zero traffic.",
+        options: [
+          "Destination A: 'The noisiest and most crowded metropolis in Asia.'",
+          "Destination B: 'The most peaceful mountain village! You can hike and relax by a clean lake.'"
+        ],
+        answer: "Destination B: 'The most peaceful mountain village! You can hike and relax by a clean lake.'",
+        explanation: "'The most peaceful' fits a traveler looking for calm and silence."
+      },
+      {
+        id: "sa3",
+        profile: "🏛️ Dr. Silva (History Professor): Loves ancient ruins, old castles, and centuries-old architecture.",
+        options: [
+          "Destination A: 'The oldest historic city on our list! There are Roman ruins and medieval castles.'",
+          "Destination B: 'The newest, most modern tech hub built ten years ago.'"
+        ],
+        answer: "Destination A: 'The oldest historic city on our list! There are Roman ruins and medieval castles.'",
+        explanation: "'The oldest' historic city satisfies a history professor."
+      },
+      {
+        id: "sa4",
+        profile: "🎢 Sofía & Sam (Thrill Seekers): Love concerts, theme parks, nightlife, and non-stop action.",
+        options: [
+          "Destination A: 'The smallest, quietest fishing village with only 200 residents.'",
+          "Destination B: 'The most exciting city! There are live shows, night markets, and adventure sports.'"
+        ],
+        answer: "Destination B: 'The most exciting city! There are live shows, night markets, and adventure sports.'",
+        explanation: "'The most exciting' city offers the action and nightlife they want."
+      }
+    ];
+
+    const READING_PASSAGES = [
+      {
+        id: "p1",
+        tag: "Travel Guide • ~195 Words",
+        title: "Three Amazing Cities: Tokyo, Guanajuato, and Reykjavik",
+        paragraphs: [
+          {
+            plain: "Traveling around the world shows us how different cities can be. Tokyo, Japan, is one of the biggest and most modern cities on Earth. Its train stations are the busiest in the world, and downtown streets are often noisy and crowded. However, Tokyo is also super clean. You can visit ancient temples next to tall skyscrapers, and you can try delicious sushi at local markets.",
+            highlighted: "Traveling around the world shows us how different cities can be. Tokyo, Japan, is one of <mark class='bg-indigo-200 px-1 rounded'>the biggest</mark> and <mark class='bg-indigo-200 px-1 rounded'>most modern</mark> cities on Earth. Its train stations are <mark class='bg-indigo-200 px-1 rounded'>the busiest</mark> in the world, and downtown streets are often <mark class='bg-teal-200 px-1 rounded'>noisy</mark> and <mark class='bg-teal-200 px-1 rounded'>crowded</mark>. However, Tokyo is also super <mark class='bg-teal-200 px-1 rounded'>clean</mark>. <mark class='bg-emerald-200 px-1 rounded'>You can visit</mark> ancient temples next to tall skyscrapers, and <mark class='bg-emerald-200 px-1 rounded'>you can try</mark> delicious sushi at local markets."
+          },
+          {
+            plain: "In contrast, Guanajuato in central Mexico is much smaller and cheaper than Tokyo. There are pretty, colorful houses on the hills and narrow underground tunnels. The people are friendlier, and the weather is warmer than in Japan. You can walk through historic plazas and listen to traditional musicians.",
+            highlighted: "In contrast, Guanajuato in central Mexico is much <mark class='bg-orange-200 px-1 rounded'>smaller</mark> and <mark class='bg-orange-200 px-1 rounded'>cheaper than</mark> Tokyo. <mark class='bg-emerald-200 px-1 rounded'>There are</mark> <mark class='bg-teal-200 px-1 rounded'>pretty</mark>, colorful houses on the hills and narrow underground tunnels. The people are <mark class='bg-orange-200 px-1 rounded'>friendlier</mark>, and the weather is <mark class='bg-orange-200 px-1 rounded'>warmer than</mark> in Japan. <mark class='bg-emerald-200 px-1 rounded'>You can walk</mark> through <mark class='bg-teal-200 px-1 rounded'>historic</mark> plazas and listen to traditional musicians."
+          },
+          {
+            plain: "Finally, Reykjavik in Iceland is the safest and most peaceful of the three cities. It is more expensive than Guanajuato, and the winter weather is worse, but nature lovers think it has the best views. There is a famous geothermal lagoon where you can swim in warm water under the Northern Lights!",
+            highlighted: "Finally, Reykjavik in Iceland is <mark class='bg-indigo-200 px-1 rounded'>the safest</mark> and <mark class='bg-indigo-200 px-1 rounded'>most peaceful</mark> of the three cities. It is <mark class='bg-orange-200 px-1 rounded'>more expensive than</mark> Guanajuato, and the winter weather is <mark class='bg-orange-200 px-1 rounded'>worse</mark>, but nature lovers think it has <mark class='bg-indigo-200 px-1 rounded'>the best</mark> views. <mark class='bg-emerald-200 px-1 rounded'>There is</mark> a <mark class='bg-teal-200 px-1 rounded'>famous</mark> geothermal lagoon where <mark class='bg-emerald-200 px-1 rounded'>you can swim</mark> in <mark class='bg-teal-200 px-1 rounded'>warm</mark> water under the Northern Lights!"
+          }
+        ],
+        questions: [
+          {
+            id: "r1q1",
+            type: "True / False / Doesn't Say",
+            question: "1. Tokyo's train stations are busier than train stations anywhere else in the world.",
+            options: ["True", "False", "Doesn't Say"],
+            answer: "True",
+            explanation: "The text says: 'Its train stations are the busiest in the world.'"
+          },
+          {
+            id: "r1q2",
+            type: "True / False / Doesn't Say",
+            question: "2. Guanajuato is more expensive than Reykjavik.",
+            options: ["True", "False", "Doesn't Say"],
+            answer: "False",
+            explanation: "False! Paragraph 3 says Reykjavik is 'more expensive than Guanajuato.'"
+          },
+          {
+            id: "r1q3",
+            type: "True / False / Doesn't Say",
+            question: "3. Reykjavik has the largest airport in northern Europe.",
+            options: ["True", "False", "Doesn't Say"],
+            answer: "Doesn't Say",
+            explanation: "The passage never mentions Reykjavik's airport."
+          },
+          {
+            id: "r1q4",
+            type: "Multiple Choice",
+            question: "4. Which city is described as the safest and most peaceful?",
+            options: ["Tokyo", "Guanajuato", "Reykjavik"],
+            answer: "Reykjavik",
+            explanation: "Paragraph 3 states: 'Reykjavik in Iceland is the safest and most peaceful of the three cities.'"
+          },
+          {
+            id: "r1q5",
+            type: "Multiple Choice",
+            question: "5. What activity can you do in Guanajuato according to the text?",
+            options: ["Swim in a geothermal lagoon", "Walk through historic plazas and listen to musicians", "Ride the busiest trains in the world"],
+            answer: "Walk through historic plazas and listen to musicians",
+            explanation: "Paragraph 2 mentions: 'You can walk through historic plazas and listen to traditional musicians.'"
+          },
+          {
+            id: "r1q6",
+            type: "Vocabulary in Context",
+            question: "6. In Paragraph 1, the word 'crowded' means:",
+            options: ["Completely empty and quiet", "Full of many people", "Very cold and windy"],
+            answer: "Full of many people",
+            explanation: "'Crowded' describes a place packed with lots of people."
+          }
+        ]
+      },
+      {
+        id: "p2",
+        tag: "Travel Blog • ~190 Words",
+        title: "The Ultimate Weekend Getaway: Beach Resort vs. Mountain Town",
+        paragraphs: [
+          {
+            plain: "Last month, my friends and I wanted a short weekend trip, so we compared two popular places: Sunny Bay Beach Resort and Pine Valley Mountain Town. Sunny Bay is much warmer and more exciting than Pine Valley. There are big hotels, noisy beach clubs, and famous seafood restaurants. You can surf in the ocean and dance at night. However, Sunny Bay is also more crowded and much more expensive than the mountains.",
+            highlighted: "Last month, my friends and I wanted a short weekend trip, so we compared two popular places: Sunny Bay Beach Resort and Pine Valley Mountain Town. Sunny Bay is much <mark class='bg-orange-200 px-1 rounded'>warmer</mark> and <mark class='bg-orange-200 px-1 rounded'>more exciting than</mark> Pine Valley. <mark class='bg-emerald-200 px-1 rounded'>There are</mark> <mark class='bg-teal-200 px-1 rounded'>big</mark> hotels, <mark class='bg-teal-200 px-1 rounded'>noisy</mark> beach clubs, and <mark class='bg-teal-200 px-1 rounded'>famous</mark> seafood restaurants. <mark class='bg-emerald-200 px-1 rounded'>You can surf</mark> in the ocean and dance at night. However, Sunny Bay is also <mark class='bg-orange-200 px-1 rounded'>more crowded</mark> and much <mark class='bg-orange-200 px-1 rounded'>more expensive than</mark> the mountains."
+          },
+          {
+            plain: "On the other hand, Pine Valley is smaller, cleaner, and far more peaceful than the beach. The air is fresher, and local cabins are cheaper than beach resorts. There is a pretty wooden bridge over a clear river, and the local people are the friendliest we have ever met. You can go hiking in the forest and buy homemade bread at the morning market.",
+            highlighted: "On the other hand, Pine Valley is <mark class='bg-orange-200 px-1 rounded'>smaller</mark>, <mark class='bg-orange-200 px-1 rounded'>cleaner</mark>, and far <mark class='bg-orange-200 px-1 rounded'>more peaceful than</mark> the beach. The air is fresher, and local cabins are <mark class='bg-orange-200 px-1 rounded'>cheaper than</mark> beach resorts. <mark class='bg-emerald-200 px-1 rounded'>There is</mark> a <mark class='bg-teal-200 px-1 rounded'>pretty</mark> wooden bridge over a clear river, and the local people are <mark class='bg-indigo-200 px-1 rounded'>the friendliest</mark> we have ever met. <mark class='bg-emerald-200 px-1 rounded'>You can go</mark> hiking in the forest and buy homemade bread at the morning market."
+          },
+          {
+            plain: "In the end, we chose Pine Valley because we were tired from university exams. It was the best decision for a relaxing weekend, and it was definitely the cheapest trip of our semester!",
+            highlighted: "In the end, we chose Pine Valley because we were tired from university exams. It was <mark class='bg-indigo-200 px-1 rounded'>the best</mark> decision for a relaxing weekend, and it was definitely <mark class='bg-indigo-200 px-1 rounded'>the cheapest</mark> trip of our semester!"
+          }
+        ],
+        questions: [
+          {
+            id: "r2q1",
+            type: "True / False / Doesn't Say",
+            question: "1. Sunny Bay Beach Resort is cheaper than Pine Valley Mountain Town.",
+            options: ["True", "False", "Doesn't Say"],
+            answer: "False",
+            explanation: "False! Sunny Bay is 'much more expensive than the mountains.'"
+          },
+          {
+            id: "r2q2",
+            type: "True / False / Doesn't Say",
+            question: "2. The author and friends chose Pine Valley because they wanted to relax after exams.",
+            options: ["True", "False", "Doesn't Say"],
+            answer: "True",
+            explanation: "Paragraph 3 confirms: 'we chose Pine Valley because we were tired from university exams.'"
+          },
+          {
+            id: "r2q3",
+            type: "True / False / Doesn't Say",
+            question: "3. It takes four hours by bus to reach Pine Valley.",
+            options: ["True", "False", "Doesn't Say"],
+            answer: "Doesn't Say",
+            explanation: "Travel time by bus is not mentioned in the blog post."
+          },
+          {
+            id: "r2q4",
+            type: "Multiple Choice",
+            question: "4. What can you do in Sunny Bay Beach Resort?",
+            options: ["Go hiking in the forest", "Surf in the ocean and dance at night", "Buy homemade bread at a mountain market"],
+            answer: "Surf in the ocean and dance at night",
+            explanation: "Paragraph 1 says: 'You can surf in the ocean and dance at night.'"
+          },
+          {
+            id: "r2q5",
+            type: "Multiple Choice",
+            question: "5. How does the author describe the people in Pine Valley?",
+            options: ["The friendliest they have ever met", "Noisier than city people", "More expensive than hotel staff"],
+            answer: "The friendliest they have ever met",
+            explanation: "Paragraph 2 states: 'the local people are the friendliest we have ever met.'"
+          },
+          {
+            id: "r2q6",
+            type: "Vocabulary in Context",
+            question: "6. Which superlative describes the cost of the Pine Valley trip?",
+            options: ["the most expensive", "the cheapest", "the worst"],
+            answer: "the cheapest",
+            explanation: "The final sentence says: 'it was definitely the cheapest trip of our semester!'"
+          }
+        ]
+      }
+    ];
+
+    // -----------------------------------------------------------
+    // 3. APPLICATION STATE & AUDIO ENGINE (OFFLINE WEB AUDIO + TTS)
+    // -----------------------------------------------------------
+    const state = {
+      activeTab: "vocab",
+      vocabFilter: "all",
+      showSpanish: false,
+      soundEnabled: true,
+      completedItems: new Set(), // Tracks IDs of correctly answered items
+      selectedLeftOpposite: null,
+      matchedOpposites: new Set(),
+      activePassageIdx: 0,
+      highlightGrammar: false,
+      isSpeaking: false
+    };
+
+    // Total possible points across all interactive tasks:
+    // 6 (Opposites) + 6 (Vocab Fill) + 10 (Comp Morph) + 6 (Comp City) + 8 (Sup Gap) + 4 (Sup Advisor) + 12 (Reading x2) = 52
+    const TOTAL_MAX_SCORE = 52;
+
+    // Subtle Web Audio API synthesizer for feedback sounds (zero external files)
+    let audioCtx = null;
+    function playTone(type) {
+      if (!state.soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === "suspended") {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+        if (type === "correct") {
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.09); // E5
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+          osc.start(now);
+          osc.stop(now + 0.28);
+        } else {
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.setValueAtTime(185, now + 0.1);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+          osc.start(now);
+          osc.stop(now + 0.26);
+        }
+      } catch (e) {
+        // Ignore audio errors if blocked by browser policy
+      }
+    }
+
+    // Web Speech API (en-US pronunciation)
+    function speakText(text) {
+      if (!("speechSynthesis" in window)) {
+        showToast("Speech synthesis is not supported in this browser.", "🔇");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      utterance.rate = 0.92; // Slightly slower for A2 clarity
+      utterance.onend = () => {
+        state.isSpeaking = false;
+        updateReadAloudButton();
+      };
+      state.isSpeaking = true;
+      updateReadAloudButton();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function toggleSound() {
+      state.soundEnabled = !state.soundEnabled;
+      const btn = document.getElementById("sound-toggle-btn");
+      btn.textContent = state.soundEnabled ? "🔊" : "🔇";
+      showToast(state.soundEnabled ? "Sound effects enabled" : "Sound effects muted", state.soundEnabled ? "🔊" : "🔇");
+    }
+
+    // Toast notification helper
+    let toastTimer = null;
+    function showToast(msg, icon = "💡") {
+      const banner = document.getElementById("toast-banner");
+      document.getElementById("toast-msg").textContent = msg;
+      document.getElementById("toast-icon").textContent = icon;
+      banner.classList.remove("hidden");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        banner.classList.add("hidden");
+      }, 3200);
+    }
+
+    // Score & Badge Updater
+    function awardPoint(itemId) {
+      if (!state.completedItems.has(itemId)) {
+        state.completedItems.add(itemId);
+        updateGlobalProgress();
+      }
+    }
+
+    function updateGlobalProgress() {
+      const score = state.completedItems.size;
+      document.getElementById("global-score").textContent = score;
+      document.getElementById("global-max").textContent = TOTAL_MAX_SCORE;
+
+      const pct = score / TOTAL_MAX_SCORE;
+      const badgeIcon = document.getElementById("badge-icon");
+      const badgeTitle = document.getElementById("badge-title");
+
+      if (pct >= 0.85) {
+        badgeIcon.textContent = "🏆";
+        badgeTitle.textContent = "Global Travel Master";
+      } else if (pct >= 0.5) {
+        badgeIcon.textContent = "✈️";
+        badgeTitle.textContent = "Savvy Globetrotter";
+      } else if (pct >= 0.2) {
+        badgeIcon.textContent = "🗺️";
+        badgeTitle.textContent = "City Explorer";
+      } else {
+        badgeIcon.textContent = "🧭";
+        badgeTitle.textContent = "Explorer Novice";
+      }
+    }
+
+    // -----------------------------------------------------------
+    // 4. NAVIGATION & MODALS
+    // -----------------------------------------------------------
+    function switchTab(tabName) {
+      state.activeTab = tabName;
+      window.speechSynthesis && window.speechSynthesis.cancel();
+      state.isSpeaking = false;
+      updateReadAloudButton();
+
+      document.querySelectorAll(".tab-section").forEach(sec => sec.classList.add("hidden"));
+      document.getElementById(`section-${tabName}`).classList.remove("hidden");
+
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.classList.remove("bg-teal-600", "text-white", "shadow");
+        btn.classList.add("text-slate-300", "hover:bg-slate-700/70", "hover:text-white");
+      });
+      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+      activeBtn.classList.add("bg-teal-600", "text-white", "shadow");
+      activeBtn.classList.remove("text-slate-300", "hover:bg-slate-700/70", "hover:text-white");
+    }
+
+    function toggleReferenceModal(open) {
+      const modal = document.getElementById("reference-modal");
+      if (open) {
+        modal.classList.remove("hidden");
+      } else {
+        modal.classList.add("hidden");
+      }
+    }
+
+    function openResetModal() {
+      document.getElementById("reset-modal").classList.remove("hidden");
+    }
+
+    function closeResetModal() {
+      document.getElementById("reset-modal").classList.add("hidden");
+    }
+
+    function confirmResetProgress() {
+      state.completedItems.clear();
+      state.matchedOpposites.clear();
+      state.selectedLeftOpposite = null;
+      updateGlobalProgress();
+      renderAllExercises();
+      closeResetModal();
+      showToast("All progress has been reset. Ready for a fresh start!", "🔄");
+    }
+
+    // -----------------------------------------------------------
+    // 5. TAB 1 RENDERING & INTERACTIONS (VOCABULARY LAB)
+    // -----------------------------------------------------------
+    function filterVocab(cat) {
+      state.vocabFilter = cat;
+      document.querySelectorAll(".vocab-filter-btn").forEach(btn => {
+        if (btn.dataset.cat === cat) {
+          btn.classList.remove("bg-slate-100", "text-slate-700");
+          btn.classList.add("bg-slate-900", "text-white");
+        } else {
+          btn.classList.add("bg-slate-100", "text-slate-700");
+          btn.classList.remove("bg-slate-900", "text-white");
+        }
+      });
+      renderFlashcards();
+    }
+
+    function toggleSpanish() {
+      state.showSpanish = !state.showSpanish;
+      document.getElementById("spanish-toggle-label").textContent = state.showSpanish
+        ? "Hide Spanish Meanings"
+        : "Show Spanish Meanings";
+      renderFlashcards();
+    }
+
+    function renderFlashcards() {
+      const grid = document.getElementById("flashcards-grid");
+      const items = state.vocabFilter === "all"
+        ? VOCAB_BANK
+        : VOCAB_BANK.filter(v => v.category === state.vocabFilter);
+
+      const badgeColors = {
+        short: "bg-teal-50 text-teal-700 border-teal-200",
+        y: "bg-indigo-50 text-indigo-700 border-indigo-200",
+        long: "bg-orange-50 text-orange-700 border-orange-200",
+        irregular: "bg-rose-50 text-rose-700 border-rose-200"
+      };
+
+      grid.innerHTML = items.map(item => `
+        <div class="bg-slate-50 hover:bg-white border border-slate-200 hover:border-teal-300 rounded-2xl p-4 transition shadow-xs hover:shadow-md flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-md border ${badgeColors[item.category]}">${item.catLabel}</span>
+              <button onclick="speakText('${item.base}. ${item.comp}. ${item.sup}.')" title="Listen to forms" class="w-8 h-8 rounded-full bg-teal-600 hover:bg-teal-500 text-white flex items-center justify-center text-xs shadow-xs active:scale-95 transition">
+                🔊
+              </button>
+            </div>
+            <div class="flex items-baseline justify-between">
+              <h4 class="text-xl font-extrabold text-slate-900">${item.base}</h4>
+              ${state.showSpanish ? `<span class="text-xs font-bold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded">${item.es}</span>` : ""}
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-200/80 text-xs space-y-1">
+              <p class="text-slate-600">Comp: <strong class="text-orange-700">${item.comp}</strong></p>
+              <p class="text-slate-600">Sup: <strong class="text-indigo-700">${item.sup}</strong></p>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200/80 rounded-xl p-2.5 text-xs text-slate-600 leading-relaxed flex items-start justify-between gap-2">
+            <span>"${item.example}"</span>
+            <button onclick="speakText(\`${item.example.replace(/'/g, "\\'")}\`)" title="Listen to example" class="text-teal-600 hover:text-teal-800 font-bold shrink-0 mt-0.5">🔈</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // Activity 1A: Opposites Matching Game
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function initOppositesGame() {
+      state.selectedLeftOpposite = null;
+      const leftCol = document.getElementById("opposites-left");
+      const rightCol = document.getElementById("opposites-right");
+
+      const leftItems = shuffleArray(OPPOSITE_PAIRS);
+      const rightItems = shuffleArray(OPPOSITE_PAIRS);
+
+      leftCol.innerHTML = leftItems.map(p => {
+        const matched = state.matchedOpposites.has(p.id);
+        return `
+          <button id="opp-left-${p.id}" onclick="selectOppositeLeft('${p.id}')" ${matched ? "disabled" : ""}
+            class="w-full py-2.5 px-3 rounded-xl text-sm font-bold border text-left transition flex items-center justify-between
+            ${matched ? "bg-emerald-50 border-emerald-300 text-emerald-800 opacity-80" : "bg-slate-50 hover:bg-teal-50 border-slate-200 text-slate-800"}">
+            <span>${p.left}</span>
+            <span>${matched ? "✅" : "○"}</span>
+          </button>
+        `;
+      }).join("");
+
+      rightCol.innerHTML = rightItems.map(p => {
+        const matched = state.matchedOpposites.has(p.id);
+        return `
+          <button id="opp-right-${p.id}" onclick="selectOppositeRight('${p.id}')" ${matched ? "disabled" : ""}
+            class="w-full py-2.5 px-3 rounded-xl text-sm font-bold border text-left transition flex items-center justify-between
+            ${matched ? "bg-emerald-50 border-emerald-300 text-emerald-800 opacity-80" : "bg-slate-50 hover:bg-amber-50 border-slate-200 text-slate-800"}">
+            <span>${p.right}</span>
+            <span>${matched ? "✅" : "○"}</span>
+          </button>
+        `;
+      }).join("");
+
+      updateOppositesProgress();
+    }
+
+    function selectOppositeLeft(pairId) {
+      if (state.matchedOpposites.has(pairId)) return;
+      state.selectedLeftOpposite = pairId;
+      document.querySelectorAll("[id^='opp-left-']").forEach(btn => {
+        if (!btn.disabled) {
+          btn.classList.remove("ring-2", "ring-teal-500", "bg-teal-100");
+        }
+      });
+      const activeBtn = document.getElementById(`opp-left-${pairId}`);
+      activeBtn.classList.add("ring-2", "ring-teal-500", "bg-teal-100");
+      document.getElementById("match-feedback").textContent = "Now select the opposite word on the right!";
+    }
+
+    function selectOppositeRight(pairId) {
+      if (state.matchedOpposites.has(pairId)) return;
+      if (!state.selectedLeftOpposite) {
+        document.getElementById("match-feedback").textContent = "First tap a word on the left column.";
+        return;
+      }
+      if (state.selectedLeftOpposite === pairId) {
+        state.matchedOpposites.add(pairId);
+        state.selectedLeftOpposite = null;
+        playTone("correct");
+        awardPoint(`opp-${pairId}`);
+        document.getElementById("match-feedback").innerHTML = "<span class='text-emerald-600'>Great match! +1 point</span>";
+        initOppositesGame();
+      } else {
+        playTone("wrong");
+        document.getElementById("match-feedback").innerHTML = "<span class='text-rose-600'>Not quite opposites. Try again!</span>";
+      }
+    }
+
+    function updateOppositesProgress() {
+      document.getElementById("match-progress").textContent = `${state.matchedOpposites.size} / 6 Pairs Matched`;
+    }
+
+    // Activity 1B: Context & Activities Fill-in-the-Blanks
+    function renderVocabFill() {
+      const container = document.getElementById("vocab-fill-container");
+      container.innerHTML = VOCAB_FILL_ITEMS.map((item, idx) => `
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2" id="card-${item.id}">
+          <p class="text-sm font-medium text-slate-800"><strong>${idx + 1}.</strong> ${item.sentence}</p>
+          <div class="flex flex-wrap gap-2">
+            ${item.options.map(opt => `
+              <button onclick="checkMultipleChoice('${item.id}', '${opt.replace(/'/g, "\\'")}', '${item.answer.replace(/'/g, "\\'")}', '${item.explanation.replace(/'/g, "\\'")}', 'vocab-fill')"
+                class="opt-btn-${item.id} px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-slate-300 hover:border-teal-500 text-slate-700 transition">
+                ${opt}
+              </button>
+            `).join("")}
+          </div>
+          <p id="fb-${item.id}" class="hidden text-xs font-medium pt-1"></p>
+        </div>
+      `).join("");
+      updateSectionCounter("vocab-fill", VOCAB_FILL_ITEMS.map(i => i.id), "vocab-fill-score", "Correct");
+    }
+
+    // -----------------------------------------------------------
+    // 6. TAB 2 RENDERING & INTERACTIONS (COMPARATIVES ARENA)
+    // -----------------------------------------------------------
+    function renderCompMorphology() {
+      const list = document.getElementById("comp-morph-list");
+      list.innerHTML = COMP_MORPH_ITEMS.map(item => {
+        const isDone = state.completedItems.has(item.id);
+        return `
+          <div class="bg-slate-50 border ${isDone ? "border-emerald-300 bg-emerald-50/40" : "border-slate-200"} rounded-xl p-3 space-y-2" id="morph-card-${item.id}">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-extrabold text-slate-900">${item.base}</span>
+              <button onclick="showToast('${item.hint.replace(/'/g, "\\'")}', '💡')" class="text-[11px] font-bold text-teal-700 hover:underline">Hint?</button>
+            </div>
+            <div class="flex gap-1.5">
+              <input type="text" id="input-${item.id}" value="${isDone ? item.answer : ""}" ${isDone ? "disabled" : ""}
+                onkeydown="if(event.key==='Enter') checkMorphology('${item.id}')"
+                placeholder="comparative..."
+                class="w-full px-2.5 py-1.5 text-xs font-bold rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              <button onclick="checkMorphology('${item.id}')" ${isDone ? "disabled" : ""}
+                class="px-3 py-1.5 rounded-lg text-xs font-bold ${isDone ? "bg-emerald-600 text-white" : "bg-slate-900 hover:bg-teal-600 text-white"} transition">
+                ${isDone ? "✓" : "Check"}
+              </button>
+            </div>
+            <p id="fb-${item.id}" class="${isDone ? "text-emerald-700" : "hidden"} text-[11px] font-semibold">
+              ${isDone ? "Correct! " + item.hint : ""}
+            </p>
+          </div>
+        `;
+      }).join("");
+      updateSectionCounter("comp-morph", COMP_MORPH_ITEMS.map(i => i.id), "comp-morph-score", "Correct");
+    }
+
+    function checkMorphology(itemId) {
+      const item = COMP_MORPH_ITEMS.find(i => i.id === itemId);
+      const inputEl = document.getElementById(`input-${itemId}`);
+      const fbEl = document.getElementById(`fb-${itemId}`);
+      const userVal = inputEl.value.trim().toLowerCase().replace(/\s+/g, " ");
+
+      if (!userVal) return;
+
+      if (userVal === item.answer) {
+        playTone("correct");
+        awardPoint(item.id);
+        inputEl.disabled = true;
+        fbEl.className = "text-[11px] font-semibold text-emerald-700";
+        fbEl.textContent = `Correct! (${item.hint})`;
+        fbEl.classList.remove("hidden");
+        renderCompMorphology();
+      } else {
+        playTone("wrong");
+        fbEl.className = "text-[11px] font-semibold text-rose-600";
+        fbEl.textContent = `Try again! Hint: ${item.hint}`;
+        fbEl.classList.remove("hidden");
+      }
+    }
+
+    function renderCompCity() {
+      const list = document.getElementById("comp-city-list");
+      list.innerHTML = COMP_CITY_ITEMS.map((item, idx) => `
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2.5" id="card-${item.id}">
+          <p class="text-xs font-extrabold uppercase tracking-wide text-orange-700">Comparison ${idx + 1}: ${item.prompt}</p>
+          <div class="space-y-1.5">
+            ${item.options.map(opt => `
+              <button onclick="checkMultipleChoice('${item.id}', '${opt.replace(/'/g, "\\'")}', '${item.answer.replace(/'/g, "\\'")}', '${item.explanation.replace(/'/g, "\\'")}', 'comp-city')"
+                class="opt-btn-${item.id} w-full text-left px-3 py-2 rounded-lg text-xs font-semibold bg-white border border-slate-300 hover:border-orange-500 text-slate-800 transition">
+                ${opt}
+              </button>
+            `).join("")}
+          </div>
+          <p id="fb-${item.id}" class="hidden text-xs font-medium pt-1"></p>
+        </div>
+      `).join("");
+      updateSectionCounter("comp-city", COMP_CITY_ITEMS.map(i => i.id), "comp-city-score", "Correct");
+    }
+
+    // -----------------------------------------------------------
+    // 7. TAB 3 RENDERING & INTERACTIONS (SUPERLATIVES CHALLENGE)
+    // -----------------------------------------------------------
+    function renderSupGap() {
+      const list = document.getElementById("sup-gap-list");
+      list.innerHTML = SUP_GAP_ITEMS.map((item, idx) => `
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2" id="card-${item.id}">
+          <p class="text-sm font-medium text-slate-800"><strong>${idx + 1}.</strong> ${item.sentence}</p>
+          <div class="flex flex-wrap gap-2">
+            ${item.options.map(opt => `
+              <button onclick="checkMultipleChoice('${item.id}', '${opt.replace(/'/g, "\\'")}', '${item.answer.replace(/'/g, "\\'")}', '${item.explanation.replace(/'/g, "\\'")}', 'sup-gap')"
+                class="opt-btn-${item.id} px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-slate-300 hover:border-indigo-500 text-slate-700 transition">
+                ${opt}
+              </button>
+            `).join("")}
+          </div>
+          <p id="fb-${item.id}" class="hidden text-xs font-medium pt-1"></p>
+        </div>
+      `).join("");
+      updateSectionCounter("sup-gap", SUP_GAP_ITEMS.map(i => i.id), "sup-gap-score", "Correct");
+    }
+
+    function renderSupAdvisor() {
+      const list = document.getElementById("sup-advisor-list");
+      list.innerHTML = SUP_ADVISOR_ITEMS.map(item => `
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2.5" id="card-${item.id}">
+          <p class="text-xs font-bold text-slate-900 leading-relaxed">${item.profile}</p>
+          <div class="space-y-1.5">
+            ${item.options.map(opt => `
+              <button onclick="checkMultipleChoice('${item.id}', '${opt.replace(/'/g, "\\'")}', '${item.answer.replace(/'/g, "\\'")}', '${item.explanation.replace(/'/g, "\\'")}', 'sup-advisor')"
+                class="opt-btn-${item.id} w-full text-left px-3 py-2 rounded-lg text-xs font-semibold bg-white border border-slate-300 hover:border-teal-500 text-slate-700 transition">
+                ${opt}
+              </button>
+            `).join("")}
+          </div>
+          <p id="fb-${item.id}" class="hidden text-xs font-medium pt-1"></p>
+        </div>
+      `).join("");
+      updateSectionCounter("sup-advisor", SUP_ADVISOR_ITEMS.map(i => i.id), "sup-advisor-score", "Matched");
+    }
+
+    // -----------------------------------------------------------
+    // 8. TAB 4 RENDERING & INTERACTIONS (READING COMPREHENSION)
+    // -----------------------------------------------------------
+    function selectPassage(idx) {
+      state.activePassageIdx = idx;
+      window.speechSynthesis && window.speechSynthesis.cancel();
+      state.isSpeaking = false;
+      updateReadAloudButton();
+
+      [0, 1].forEach(i => {
+        const btn = document.getElementById(`passage-tab-${i}`);
+        if (i === idx) {
+          btn.className = "px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 text-white shadow transition";
+        } else {
+          btn.className = "px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+        }
+      });
+
+      renderActivePassage();
+    }
+
+    function toggleHighlightGrammar() {
+      state.highlightGrammar = !state.highlightGrammar;
+      const legend = document.getElementById("grammar-legend");
+      if (state.highlightGrammar) {
+        legend.classList.remove("hidden");
+      } else {
+        legend.classList.add("hidden");
+      }
+      renderActivePassageTextOnly();
+    }
+
+    function togglePassageAudio() {
+      if (!("speechSynthesis" in window)) {
+        showToast("Speech synthesis is not supported in this browser.", "🔇");
+        return;
+      }
+      if (state.isSpeaking) {
+        window.speechSynthesis.cancel();
+        state.isSpeaking = false;
+        updateReadAloudButton();
+      } else {
+        const passage = READING_PASSAGES[state.activePassageIdx];
+        const fullText = passage.title + ". " + passage.paragraphs.map(p => p.plain).join(" ");
+        speakText(fullText);
+      }
+    }
+
+    function updateReadAloudButton() {
+      const label = document.getElementById("read-aloud-label");
+      if (label) {
+        label.textContent = state.isSpeaking ? "Stop Audio" : "Listen to Passage";
+      }
+    }
+
+    function renderActivePassageTextOnly() {
+      const passage = READING_PASSAGES[state.activePassageIdx];
+      document.getElementById("reading-tag").textContent = passage.tag;
+      document.getElementById("reading-title").textContent = passage.title;
+      const bodyEl = document.getElementById("reading-body");
+      bodyEl.innerHTML = passage.paragraphs.map(p =>
+        `<p>${state.highlightGrammar ? p.highlighted : p.plain}</p>`
+      ).join("");
+    }
+
+    function renderActivePassage() {
+      renderActivePassageTextOnly();
+      const passage = READING_PASSAGES[state.activePassageIdx];
+      const qContainer = document.getElementById("reading-questions-container");
+
+      qContainer.innerHTML = passage.questions.map(q => `
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2.5" id="card-${q.id}">
+          <span class="inline-block text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded">${q.type}</span>
+          <p class="text-sm font-bold text-slate-900">${q.question}</p>
+          <div class="flex flex-wrap gap-2">
+            ${q.options.map(opt => `
+              <button onclick="checkMultipleChoice('${q.id}', '${opt.replace(/'/g, "\\'")}', '${q.answer.replace(/'/g, "\\'")}', '${q.explanation.replace(/'/g, "\\'")}', 'reading-${passage.id}')"
+                class="opt-btn-${q.id} px-3.5 py-2 rounded-lg text-xs font-bold bg-white border border-slate-300 hover:border-emerald-500 text-slate-800 transition text-left">
+                ${opt}
+              </button>
+            `).join("")}
+          </div>
+          <p id="fb-${q.id}" class="hidden text-xs font-medium pt-1"></p>
+        </div>
+      `).join("");
+
+      updateSectionCounter(`reading-${passage.id}`, passage.questions.map(q => q.id), "reading-score-badge", "Correct");
+    }
+
+    // -----------------------------------------------------------
+    // 9. SHARED MULTIPLE CHOICE HANDLER & REFERENCE TABLE
+    // -----------------------------------------------------------
+    function checkMultipleChoice(itemId, chosen, correct, explanation, groupKey) {
+      const fbEl = document.getElementById(`fb-${itemId}`);
+      const buttons = document.querySelectorAll(`.opt-btn-${itemId}`);
+
+      if (chosen === correct) {
+        playTone("correct");
+        awardPoint(itemId);
+        buttons.forEach(btn => {
+          btn.disabled = true;
+          if (btn.textContent.trim() === correct) {
+            btn.className = `opt-btn-${itemId} px-3.5 py-2 rounded-lg text-xs font-bold bg-emerald-600 text-white border border-emerald-600 shadow-xs text-left`;
+          } else {
+            btn.classList.add("opacity-50");
+          }
+        });
+        fbEl.className = "text-xs font-semibold text-emerald-700 pt-1";
+        fbEl.innerHTML = `✅ <strong>Correct!</strong> ${explanation}`;
+        fbEl.classList.remove("hidden");
+
+        // Update local badge counter
+        if (groupKey === "vocab-fill") {
+          updateSectionCounter(groupKey, VOCAB_FILL_ITEMS.map(i => i.id), "vocab-fill-score", "Correct");
+        } else if (groupKey === "comp-city") {
+          updateSectionCounter(groupKey, COMP_CITY_ITEMS.map(i => i.id), "comp-city-score", "Correct");
+        } else if (groupKey === "sup-gap") {
+          updateSectionCounter(groupKey, SUP_GAP_ITEMS.map(i => i.id), "sup-gap-score", "Correct");
+        } else if (groupKey === "sup-advisor") {
+          updateSectionCounter(groupKey, SUP_ADVISOR_ITEMS.map(i => i.id), "sup-advisor-score", "Matched");
+        } else if (groupKey.startsWith("reading-")) {
+          const passage = READING_PASSAGES[state.activePassageIdx];
+          updateSectionCounter(groupKey, passage.questions.map(q => q.id), "reading-score-badge", "Correct");
+        }
+      } else {
+        playTone("wrong");
+        buttons.forEach(btn => {
+          if (btn.textContent.trim() === chosen) {
+            btn.classList.add("bg-rose-50", "border-rose-400", "text-rose-700");
+          }
+        });
+        fbEl.className = "text-xs font-semibold text-rose-600 pt-1";
+        fbEl.innerHTML = `❌ Not quite. Check the grammar rule and try another option!`;
+        fbEl.classList.remove("hidden");
+      }
+    }
+
+    function updateSectionCounter(groupKey, idList, badgeElementId, suffixLabel) {
+      const el = document.getElementById(badgeElementId);
+      if (!el) return;
+      const count = idList.filter(id => state.completedItems.has(id)).length;
+      el.textContent = `${count} / ${idList.length} ${suffixLabel}`;
+    }
+
+    function renderReferenceTable() {
+      const tbody = document.getElementById("reference-table-body");
+      tbody.innerHTML = VOCAB_BANK.map(v => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-2.5 px-4 text-xs font-bold text-slate-500">${v.catLabel}</td>
+          <td class="py-2.5 px-4 font-bold text-slate-900">${v.base} <span class="text-xs font-normal text-slate-400">(${v.es})</span></td>
+          <td class="py-2.5 px-4 font-bold text-orange-700">${v.comp}</td>
+          <td class="py-2.5 px-4 font-bold text-indigo-700">${v.sup}</td>
+          <td class="py-2.5 px-4">
+            <button onclick="speakText('${v.base}, ${v.comp}, ${v.sup}')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 px-2.5 py-1 rounded-lg text-xs font-bold">🔊 Listen</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function renderAllExercises() {
+      renderFlashcards();
+      initOppositesGame();
+      renderVocabFill();
+      renderCompMorphology();
+      renderCompCity();
+      renderSupGap();
+      renderSupAdvisor();
+      renderActivePassage();
+      renderReferenceTable();
+    }
+
+    // Initialize on load
+    window.addEventListener("DOMContentLoaded", () => {
+      updateGlobalProgress();
+      renderAllExercises();
+    });
+  </script>
+</body>
+</html>
